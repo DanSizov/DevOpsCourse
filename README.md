@@ -5,13 +5,13 @@
 3. Install **Docker** on the **VM** and create a **network**.
 4. Pull and run **BE**, **FE**:
 
-``
+````
 docker pull dlippo/devopscourse-notes-backend:latest
 docker run -d --name notes-backend --network notes-network -p 5001:5000 dlippo/devopscourse-notes-backend:latest
 
 docker pull dlippo/devopscourse-notes-frontend:latest
 docker run -d --name notes-frontend --network notes-network -p 3000:80 dlippo/devopscourse-notes-frontend:latest
-``
+````
 
 The result should be identical to the images below
 
