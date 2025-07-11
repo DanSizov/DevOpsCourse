@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  notes-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: notes-backend
+    ports:
+      - '5001:5000'
+  
+  notes-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: notes-frontend
+    ports:
+      - '3000:80'
+    depends_on:
+      - notes-backend
+      
