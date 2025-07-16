@@ -2,13 +2,13 @@ version: "3.8"
 
 services:
   notes-backend:
-    image: dlippo/devopscourse-notes-backend:${TAG}
+    image: dlippo/notes-backend:${TAG}
     container_name: notes-backend
     ports:
       - '5001:5000'
   
   notes-frontend:
-    image: dlippo/devopscourse-notes-frontend:${TAG}
+    image: dlippo/notes-frontend:${TAG}
     container_name: notes-frontend
     ports:
       - '3000:80'
