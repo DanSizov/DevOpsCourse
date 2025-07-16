@@ -65,7 +65,7 @@ jobs:
         run: |
           ssh ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << EOF
           export TAG=${{ github.sha }}
-          docker-compose down || true
+          docker rm -f notes-backend notes-frontend || true
           docker-compose pull
-          docker-compose up -d
+          docker-compose up -d --force-recreate --remove-orphans
           EOF
