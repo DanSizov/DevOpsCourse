@@ -1,0 +1,65 @@
+name: CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build FE image
+        run: |
+          docker build \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/notes-frontend:${{ github.sha }} \
+            -f frontend/Dockerfile \
+            frontend
+
+      - name: Build BE image
+        run: |
+          docker build \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/notes-backend:${{ github.sha }} \
+            -f backend/Dockerfile \
+            backend
+
+      - name: Push Images
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/notes-frontend:${{ github.sha }}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/notes-backend:${{ github.sha }}
+
+  deploy:
+    name: Deploy to VM
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Start ssh-agent
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Copy docker-compose.yml to VM
+        run: |
+          scp docker-compose.yml \
+            ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:~/docker-compose.yml
+
+      - name: SSH and update containers
+        run: |
+          ssh ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+          docker-compose down || true
+          TAG=${{ github.sha }} docker-compose pull
+          TAG=${{ github.sha }} docker-compose up -d
+          EOF
