@@ -63,8 +63,9 @@ jobs:
 
       - name: SSH and update containers
         run: |
-          ssh ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+          ssh ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << EOF
+          export TAG=${{ github.sha }}
           docker-compose down || true
-          TAG=${{ github.sha }} docker-compose pull
-          TAG=${{ github.sha }} docker-compose up -d
+          docker-compose pull
+          docker-compose up -d
           EOF
